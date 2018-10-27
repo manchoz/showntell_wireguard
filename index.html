@@ -1,49 +1,149 @@
 <!doctype html>
 <html>
-	<head>
-		<meta charset="utf-8">
-		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
-		<title>reveal.js</title>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
-		<link rel="stylesheet" href="css/reveal.css">
-		<link rel="stylesheet" href="css/theme/black.css">
+	<title>Hello World, WireGuard!</title>
 
-		<!-- Theme used for syntax highlighting of code -->
-		<link rel="stylesheet" href="lib/css/zenburn.css">
+	<link rel="stylesheet" href="css/reveal.css">
+	<link rel="stylesheet" href="css/theme/black.css">
 
-		<!-- Printing and PDF exports -->
-		<script>
-			var link = document.createElement( 'link' );
-			link.rel = 'stylesheet';
-			link.type = 'text/css';
-			link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
-			document.getElementsByTagName( 'head' )[0].appendChild( link );
-		</script>
-	</head>
-	<body>
-		<div class="reveal">
-			<div class="slides">
-				<section>Slide 1</section>
-				<section>Slide 2</section>
-			</div>
+	<!-- Theme used for syntax highlighting of code -->
+	<link rel="stylesheet" href="lib/css/moon.css">
+
+	<!-- Printing and PDF exports -->
+	<script>
+		var link = document.createElement('link');
+		link.rel = 'stylesheet';
+		link.type = 'text/css';
+		link.href = window.location.search.match(/print-pdf/gi) ? 'css/print/pdf.css' : 'css/print/paper.css';
+		document.getElementsByTagName('head')[0].appendChild(link);
+	</script>
+</head>
+
+<body>
+	<div class="reveal">
+		<div class="slides">
+			<section>
+				<h1>Hello World, WireGuard!</h1>
+				<h4>Giampaolo Mancini <a href="mailto:giampaolo@trampolineup.com">giampaolo@trampolineup.com</a></h4>
+			</section>
+			<section data-background-color="#ffffffff" data-background-image="https://www.wireguard.com/img/wireguard.svg"
+			 data-background-size="80%" data-background-repeat="no-repeat">
+			</section>
+			<section>
+				<p>
+					<a href="https://www.wireguard.com/">WireGuard</a> è una nuova suite per VPN sviluppata da <a href="https://www.zx2c4.com/">Jason
+						A. Donenfeld</a>
+				</p>
+				<ul>
+					<li>Cross-platform</li>
+					<li>Veloce</li>
+					<li>Semplicissima da configurare</li>
+					<li>Crittografia allo stato dell'arte</li>
+				</ul>
+			</section>
+			<section>
+				L'autenticazione è basata su generazione e scambio di piccole chiavi pubbliche, come in SSH.
+				<pre><code class="hljs">$ cat privatekey
+QA/+R+JnKSpKDvLEX4IMBD+GaSJ2cccpjSucjP/jMF8=
+$ cat publickey
+JJroiAOHClIe2Asgfc0s394uG7HZVGqOzyVW9PToSkU=</code></pre>
+			</section>
+			<section>
+				<section>
+					Su Linux genera una interfacca di rete <i>normale</i>, da gestire con gli <code>iptools</code>.
+				</section>
+				<section>
+					<p>Esempio<p>
+							<pre><code class="hljs">$ sudo ip li add dev wg0 type wireguard
+$ sudo ip addr add dev wg0 10.200.42.1/24
+$ sudo ip li set dev wg0 up
+$ sudo wg set wg0 private-key /path/to/private-key \
+	peer ABCDEF... \
+	endpoint 1.2.3.4:51820 \
+	allowed-ips 10.200.42/24
+</code></pre>
+				</section>
+				<section>
+					<p>Generazione delle chiavi</p>
+					<pre><code class="hljs">$ umask 777
+$ wg genkey | tee privatekey | wg pubkey > publickey
+$ cat privatekey
+QA/+R+JnKSpKDvLEX4IMBD+GaSJ2cccpjSucjP/jMF8=
+$ cat publickey
+JJroiAOHClIe2Asgfc0s394uG7HZVGqOzyVW9PToSkU=
+</code></pre>
+				</section>
+			</section>
+			<section>
+				<p>Configurazione persistente: <code>wg-quick</code></p>
+				<pre><code class="hljs">$ sudo touch /etc/wireguard/wg0.conf
+$ sudo wg-quick save wg0
+$ sudo systemctl enable --now wg-quick@wg0
+</code></pre>
+			</section>
+			<section data-background="https://media.giphy.com/media/vMnuZGHJfFSTe/giphy.gif"></section>
+			<section>
+				<section>
+					<h3>Installazione Linux</h3>
+					<p>Non ancora nel <a href="https://marc.info/?l=linux-netdev&m=153306429108040&w=2">kernel</a> <a href="https://www.theregister.co.uk/2018/08/02/linux_kernel_wireguard/">tree</a>
+						<a href="https://www.phoronix.com/scan.php?page=news_item&px=WireGuard-V6-Published">ufficiale</a></p>
+					<p>(prevista per 4.20~5.0)</p>
+					<ul>
+						<li>Modulo del kernel: <code>wireguard.ko</code></li>
+						<li>Tool userspace: <code>wg</code>, <code>wg-quick</code></li>
+					</ul>
+				</section>
+				<section>
+					<p>Package manager per molte distro</p>
+					<ul>
+						<li><code>wireguard-tools</code></li>
+						<li> <em><code>wireguard-dkms</code></em></li>
+					</ul>
+				</section>
+				<section>
+					<p>Sorgenti e repo git<p>
+							<ul>
+								<li><a href="https://git.zx2c4.com/WireGuard">https://git.zx2c4.com/WireGuard</a></li>
+								<li><code>linux-headers</code></li>
+								<li><code>libmnl-dev</code></li>
+							</ul>
+				</section>
+			</section>
+			<section>
+				<h3>Installazione altri OS</h3>
+				<ul>
+					<li>MacOS: <code>brew install wireguard-tools</code></li>
+					<li>Windows: <a href="https://tunsafe.com/">TunSafe</a> (Client NON UFFICIALE)</li>
+					<li>Android: <a href="https://play.google.com/store/apps/details?id=com.wireguard.android">WireGuard</a></li>
+				</ul>
+			</section>
+			<section>
+				<h1>Q&A</h1>
+			</section>
+			<section data-background="https://media.giphy.com/media/wIVA0zh5pt0G5YtcAL/giphy.gif"></section>
 		</div>
+	</div>
 
-		<script src="lib/js/head.min.js"></script>
-		<script src="js/reveal.js"></script>
+	<script src="lib/js/head.min.js"></script>
+	<script src="js/reveal.js"></script>
 
-		<script>
-			// More info about config & dependencies:
-			// - https://github.com/hakimel/reveal.js#configuration
-			// - https://github.com/hakimel/reveal.js#dependencies
-			Reveal.initialize({
-				dependencies: [
-					{ src: 'plugin/markdown/marked.js' },
-					{ src: 'plugin/markdown/markdown.js' },
-					{ src: 'plugin/notes/notes.js', async: true },
-					{ src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } }
-				]
-			});
-		</script>
-	</body>
+	<script>
+		// More info about config & dependencies:
+		// - https://github.com/hakimel/reveal.js#configuration
+		// - https://github.com/hakimel/reveal.js#dependencies
+		Reveal.initialize({
+			dependencies: [
+				{ src: 'plugin/markdown/marked.js' },
+				{ src: 'plugin/markdown/markdown.js' },
+				{ src: 'plugin/notes/notes.js', async: true },
+				{ src: 'plugin/highlight/highlight.js', async: true, callback: function () { hljs.initHighlightingOnLoad(); } }
+			]
+		});
+	</script>
+</body>
+
 </html>
